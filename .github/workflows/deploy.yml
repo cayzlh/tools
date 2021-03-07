@@ -1,0 +1,54 @@
+name: deploy tools
+
+on:
+  push:
+    branches:
+      - master
+
+env:
+  GIT_USER: cayzlh
+  GIT_EMAIL: chenanyu@cayzlh.com
+  DEPLOY_REPO: cayzlh/tools
+  DEPLOY_BRANCH: master
+
+jobs:
+  build:
+    name: Deploy homepage with ${{ matrix.os }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        node_version: [13.x]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Use Node.js ${{ matrix.node_version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node_version }}
+
+      - name: Cache Node Dependencies
+        id: cache
+        uses: actions/cache@v1
+        with:
+          path: node_modules
+          key: ${{runner.OS}}-npm-caches-${{ hashFiles('package-lock.json') }}
+
+      - name: Install dependencies
+        run: |
+          npm i -g @cloudbase/cli
+
+      - name: login to cloudbase
+        run: |
+          tcb login --apiKeyId ${{secrets.SECRET_ID}} --apiKey ${{secrets.SECRET_KEY}}
+
+      - name: Deploy cloudbase
+        run: |
+          rm -rf .git .github
+          tcb hosting deploy ./ -r gz -e ${{secrets.ENV_ID}} tools
+
+      - name: notification
+        run: |
+          curl https://qmsg.zendee.cn/send/${{secrets.QMSG_KEY}} -X POST -d 'msg=部署完成, 请访问 https://www.cayzlh.com/ 进行确认 '
