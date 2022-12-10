@@ -51,7 +51,7 @@ public static void main(String[] args) {
 
 ## 图片
 
-![](https://cdn.jsdelivr.net/gh/cayzlh/git-img-repository@master/uPic/头像1.jpg)
+![](https://jsd.cdn.zzko.cn/gh/cayzlh/git-img-repository@master/uPic/头像1.jpg)
 
 ## 其他
 
